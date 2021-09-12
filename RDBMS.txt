@@ -1,0 +1,48 @@
+1.	How many copies of the book titled The Lost Tribe are owned by the library branch whose name is "Sharpstown"?
+	select lib.tbl_book_copies.noOfCopies 
+	from lib.tbl_book
+	left join lib.tbl_book_copies ON lib.tbl_book.bookid = lib.tbl_book_copies.bookid
+	left join lib.tbl_library_branch ON lib.tbl_book_copies.branchid = lib.tbl_library_branch.branchid
+	where lib.tbl_book.title = "The Lost Tribe" and lib.tbl_library_branch.branchName = "Sharpstown"
+	
+2.	How many copies of the book titled The Lost Tribe are owned by each library branch?
+	select lib.tbl_book.bookid, lib.tbl_library_branch.branchid , lib.tbl_book.title, lib.tbl_book_copies.noOfCopies 
+	from lib.tbl_book
+	left join lib.tbl_book_copies ON lib.tbl_book.bookid = lib.tbl_book_copies.bookid
+	left join lib.tbl_library_branch ON lib.tbl_book_copies.branchid = lib.tbl_library_branch.branchid
+	where title = "The Lost Tribe"
+
+3.	Retrieve the names of all borrowers who do not have any books checked out .
+	select name 
+	from lib.tbl_borrower
+	left join lib.tbl_book_loans ON lib.tbl_borrower.cardNo != lib.tbl_book_loans.cardNo 
+	Group By lib.tbl_borrower.name
+
+
+4.	For each book that is loaned out from the "Sharpstown" branch and whose DueDate is today, retrieve the book title, the borrower's name, and the borrower's address.
+
+	select lib.tbl_book.title, lib.tbl_borrower.name, lib.tbl_borrower.address
+	from lib.tbl_book_loans
+	left join lib.tbl_book ON lib.tbl_book_loans.bookid = lib.tbl_book.bookid
+	left join lib.tbl_borrower On lib.tbl_book_loans.cardNo = lib.tbl_borrower.cardNo
+	where CAST(lib.tbl_book_loans.duedate AS Date) = CAST("2018-09-10" AS Date) AND lib.tbl_book_loans.branchid = 1
+
+5.	For each library branch, retrieve the branch name and the total number of books loaned out from that branch.
+	select lib.tbl_library_branch.branchName, count(lib.tbl_book_loans.branchId) AS totalLentBooks
+	from lib.tbl_library_branch
+	left join lib.tbl_book_loans ON lib.tbl_library_branch.branchId = lib.tbl_book_loans.branchId GROUP BY lib.tbl_library_branch.branchID
+
+6.	Retrieve the names, addresses, and number of books checked out for all borrowers who have more than five books checked out. 
+	select lib.tbl_borrower.name, lib.tbl_borrower.address, count(lib.tbl_book_loans.cardNo) AS numLentBooks
+	from lib.tbl_borrower
+	right join lib.tbl_book_loans ON lib.tbl_borrower.cardNo = lib.tbl_book_loans.cardNo
+	group by lib.tbl_book_loans.cardNo
+	having count(lib.tbl_book_loans.cardNo) > 5
+
+7.	 For each book authored (or co-authored) by "Stephen King", retrieve the title and the number of copies owned by the library branch whose name is "Central"
+	select lib.tbl_book.title, lib.tbl_book_copies.noOfCopies
+	from lib.tbl_author
+	left join lib.tbl_book ON lib.tbl_book.authId = lib.tbl_author.authorId
+	left join lib.tbl_book_copies ON lib.tbl_book.bookId = lib.tbl_book_copies.bookId
+	left join lib.tbl_library_branch ON lib.tbl_book_copies.branchId = lib.tbl_library_branch.branchId
+	where lib.tbl_library_branch.branchName = "Central" AND lib.tbl_author.authorName = "Stephen King"
